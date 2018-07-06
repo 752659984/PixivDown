@@ -1,0 +1,34 @@
+﻿[
+  {
+    "ContentType": 0,
+    "Regexs": {
+      "ListParentRegex": "<ul class=\"_image-items\">.*?</ul>",
+      "ListRegex": "<a href=\"(?'Url'[^<>]*?)\"class=\"work[^<>]*?\">",
+      "NextListRegex": "<span class=\"next\"><a href=\"(?'Next'[^<>]*?)\" rel=\"next\" class=\"_button\" title=\"继续\"><i class=\"_icon sprites-next-linked\"></i></a></span>"
+    }
+  },
+  {
+    "ContentType": 1,
+    "Regexs": {
+      "ListParentRegex": "<section id=\"search-result\">.*?</section>",
+      "ListRegex": "<input[^<>]*?value=\"(?'Url'\\d+)\"[^<>]*?>",
+      "NextListRegex": "<a href=\"(?'Next'[^<>]*?)\"[^<>]*?>继续 »</a>"
+    }
+  },
+  {
+    "ContentType": 2,
+    "Regexs": {
+      "ListParentRegex": "<ul class=\"_image-items js-legacy-mark-unmark-list\">.*?</ul>\\s*<div class=\"clear\"></div>",
+      "ListRegex": "<a href=\"(?'Url'[^<>]*?)\"[^<>]*?style=\"display:block\">",
+      "NextListRegex": "<a href=\"(?'Next'[^<>]*?)\"[^<>]*?\"继续\">"
+    }
+  },
+  {
+    "ContentType": 3,
+    "Regexs": {
+      "ListParentRegex": "<div class=\"layout-body\">.*?(?=<section id=\"search-option\")",
+      "ListRegex": "&quot;illustId&quot;:&quot;(?'Url'\\d+)&quot;",
+      "NextListRegex": "<span class=\"next\"><a href=\"(?'Next'[^<>]*?)\" rel=\"next\" class=\"_button\" title=\"继续\"><i class=\"_icon sprites-next-linked\"></i></a></span>"
+    }
+  }
+]
