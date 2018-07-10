@@ -55,6 +55,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DownHelp.cs" />
+    <Compile Include="Entity\DownFileParameter.cs" />
+    <Compile Include="Entity\GetListParameter.cs" />
     <Compile Include="GifHelp.cs" />
     <Compile Include="HtmlHelp.cs" />
     <Compile Include="Entity\HtmlResultEntity.cs" />
