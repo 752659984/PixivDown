@@ -63,6 +63,7 @@
     <Compile Include="Entity\RegexHelp.cs" />
     <Compile Include="Entity\RequestParameEntity.cs" />
     <Compile Include="Entity\ResultEntity.cs" />
+    <Compile Include="MultThreadPool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlHelp.cs" />
     <Compile Include="ZipHelp.cs" />
