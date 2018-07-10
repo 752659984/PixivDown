@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Command
 {
+    /// <summary>
+    /// 可以控制所有线程
+    /// </summary>
     public class Multithreading
     {
         private int GetThreadMaxCount;
@@ -141,20 +144,4 @@ namespace Command
             }
         }
     }
-}
-
-public class GetListParameter
-{
-    public Match Item { get; set; }
-    public string Html { get; set; }
-    public string ListUrl { get; set; }
-}
-
-public class DownFileParameter
-{
-    public Match Item { get; set; }
-    public string BaseUrl { get; set; }
-    public string Url { get; set; }
-    public string TxtContent { get; set; }
-    public string SavePath { get; set; }
 }

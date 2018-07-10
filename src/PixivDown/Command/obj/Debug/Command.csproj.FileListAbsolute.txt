@@ -15,4 +15,3 @@ E:\VS\PixivDown\Command\obj\Debug\Command.csproj.CoreCompileInputs.cache
 E:\VS\PixivDown\Command\obj\Debug\Command.dll
 E:\VS\PixivDown\Command\obj\Debug\Command.pdb
 E:\VS\PixivDown\Command\obj\Debug\Command.csproj.CopyComplete
-E:\VS\PixivDown\Command\obj\Debug\Command.csprojAssemblyReference.cache
