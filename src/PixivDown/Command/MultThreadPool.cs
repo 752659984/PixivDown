@@ -58,6 +58,11 @@ namespace Command
 
         public bool DoGetAction(object obj, WaitCallback action)
         {
+            if (GetThreadCount >= GetThreadMaxCount)
+            {
+                return false;
+            }
+
             lock (ObjLockGetThread)
             {
                 if (GetThreadCount >= GetThreadMaxCount)
@@ -80,6 +85,11 @@ namespace Command
 
         public bool DoDownAction(object obj, WaitCallback action)
         {
+            if (DownThreadCount >= DownThreadMaxCount)
+            {
+                return false;
+            }
+
             lock (ObjLockDownThread)
             {
                 if (DownThreadCount >= DownThreadMaxCount)
@@ -102,6 +112,11 @@ namespace Command
 
         public bool UnZipFile(object obj, WaitCallback action)
         {
+            if (UnZiping)
+            {
+                return false;
+            }
+
             lock (ObjLockUnZip)
             {
                 if (UnZiping)
