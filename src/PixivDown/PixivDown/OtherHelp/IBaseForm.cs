@@ -7,6 +7,10 @@ using System.Windows.Forms;
 
 namespace PixivDown
 {
+    /// <summary>
+    /// 因为窗口的控件是自动生成的代码，修饰符是private，所以不能实现接口
+    /// 如果将private改为public，则页面设计器会出错
+    /// </summary>
     public interface IBaseForm
     {
         RadioButton RadAllFollow { get; set; }

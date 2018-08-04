@@ -134,7 +134,7 @@ namespace Command
             return true;
         }
 
-        public void RemoveGThread()
+        private void RemoveGThread()
         {
             lock (ObjLockGetThread)
             {
@@ -142,7 +142,7 @@ namespace Command
             }
         }
 
-        public void RemoveDThread()
+        private void RemoveDThread()
         {
             lock (ObjLockDownThread)
             {
