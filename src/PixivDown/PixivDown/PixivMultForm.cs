@@ -165,6 +165,15 @@ namespace PixivDown
                 MessageBox.Show("请输入画师ID！", "提示");
                 return false;
             }
+            if (radSingle.Checked || radAuthorColl.Checked)
+            {
+                var r = new Regex("^[0-9]+$", RegexOptions.Singleline);
+                if (!r.IsMatch(ddlListUrl.Text))
+                {
+                    MessageBox.Show("请输入纯数字ID！", "提示");
+                    return false;
+                }
+            }
             if (string.IsNullOrWhiteSpace(txtSavePath.Text))
             {
                 MessageBox.Show("请选择保存路径！", "提示");
@@ -200,20 +209,9 @@ namespace PixivDown
         /// <returns></returns>
         private bool DownHandler()
         {
-            var listUrl = ddlListUrl.Text;
-            var r = new Regex("^[0-9]+$", RegexOptions.Singleline);
-            if (r.IsMatch(listUrl))
-            {
-                listUrl = "https://www.pixiv.net/member_illust.php?id=" + listUrl;
-            }
-            else
-            {
-                MessageBox.Show("请输入纯数字ID！");
-                return false;
-            }
-
             if (radSingle.Checked)
             {
+                var listUrl = "https://www.pixiv.net/member_illust.php?id=" + ddlListUrl.Text;
                 pHelp.mut = new Multithreading(1, (int)numDownCount.Value);
                 pHelp.Sleep = (int)numSleep.Value;
 
