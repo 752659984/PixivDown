@@ -29,7 +29,7 @@ namespace PixivDown.PixivDownAbstract
         /// 开始任务方法
         /// </summary>
         /// <param name="objParame"></param>
-        public virtual void Start(object objParame) { }
+        public virtual void Start(RequestParameEntity parame, int getCount, int downCount, int sleep) { }
 
         /// <summary>
         /// 初始化
@@ -746,9 +746,11 @@ namespace PixivDown.PixivDownAbstract
         public Single(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
         { }
 
-        public override void Start(object objParame)
+        public override void Start(RequestParameEntity parame, int getCount, int downCount, int sleep)
         {
-            base.GetSingle(objParame);
+            base.Mut = new MultThreadPool(1, downCount);
+            base.Sleep = sleep;
+            base.Mut.DoGetAction(parame, base.GetSingle);
         }
     }
 
@@ -837,7 +839,7 @@ namespace PixivDown.PixivDownAbstract
         /// <summary>
         /// 获取所有关注的画师，只能由MainThread执行
         /// </summary>
-        public override void Start(object objParame)
+        private void GetAllFollow(object objParame)
         {
             try
             {
@@ -857,6 +859,14 @@ namespace PixivDown.PixivDownAbstract
                 }
             }
         }
+
+        public override void Start(RequestParameEntity parame, int getCount, int downCount, int sleep)
+        {
+            base.Mut = new MultThreadPool(getCount, downCount);
+            base.MainThread = new Thread(this.GetAllFollow);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class Collection: CollectionBase
@@ -867,7 +877,7 @@ namespace PixivDown.PixivDownAbstract
         /// <summary>
         /// 获取自己的收藏，只能由MainThread执行
         /// </summary>
-        public override void Start(object objParame)
+        private void GetCollection(object objParame)
         {
             try
             {
@@ -889,6 +899,14 @@ namespace PixivDown.PixivDownAbstract
                 }
             }
         }
+
+        public override void Start(RequestParameEntity parame, int getCount, int downCount, int sleep)
+        {
+            base.Mut = new MultThreadPool(1, downCount);
+            base.MainThread = new Thread(this.GetCollection);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class AuthorCollection: CollectionBase
@@ -900,7 +918,7 @@ namespace PixivDown.PixivDownAbstract
         /// 下载指定画师的收藏
         /// </summary>
         /// <param name="objParame"></param>
-        public override void Start(object objParame)
+        private void GetAuthorCollection(object objParame)
         {
             try
             {
@@ -921,6 +939,14 @@ namespace PixivDown.PixivDownAbstract
                 }
             }
         }
+
+        public override void Start(RequestParameEntity parame, int getCount, int downCount, int sleep)
+        {
+            base.Mut = new MultThreadPool(1, downCount);
+            base.MainThread = new Thread(this.GetAuthorCollection);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class Search: PixivDownBase
@@ -933,7 +959,7 @@ namespace PixivDown.PixivDownAbstract
         /// Url 必须是完整的地址，只能由MainThread执行
         /// </summary>
         /// <param name="objParame"></param>
-        public override void Start(object objParame)
+        private void GetSearch(object objParame)
         {
             try
             {
@@ -974,6 +1000,14 @@ namespace PixivDown.PixivDownAbstract
                     MainThread.Abort();
                 }
             }
+        }
+
+        public override void Start(RequestParameEntity parame, int getCount, int downCount, int sleep)
+        {
+            base.Mut = new MultThreadPool(1, downCount);
+            base.MainThread = new Thread(this.GetSearch);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
         }
     }
 
