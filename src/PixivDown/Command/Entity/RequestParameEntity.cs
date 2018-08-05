@@ -16,6 +16,8 @@ namespace Command.Entity
 
         public string ParentPath { get; set; }
 
+        public bool DownRelatedWorks { get; set; }
+
         /// <summary>  
         /// ICloneable 成员   
         /// </summary>  

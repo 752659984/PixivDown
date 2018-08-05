@@ -167,6 +167,46 @@ namespace PixivDown
 
 
 
+        /// <summary>
+        /// 获取单个作品
+        /// </summary>
+        /// <param name="objParame"></param>
+        public void GetSingleWorks(object objParame)
+        {
+            try
+            {
+                if (!mut.IsContinue)
+                    return;
+
+                //因为循环里没有做修改，所有可以放外面
+                var parame = (RequestParameEntity)objParame;
+
+                form.BeginInvoke(new Action(() => { form.RtxtSuccess.Text = ""; }));
+
+                var ri = new RequestItemParameEntity() { ItemUrl = parame.ListUrl, SavePath = parame.SavePath };
+                
+                GetWorksItem(ri);
+
+                if (parame.DownRelatedWorks)
+                {
+                    GetRelatedWorks(objParame);
+                }
+            }
+            catch (Exception ex)
+            {
+                AddErrorMsg(ex.Message + "\r\n");
+                HtmlHelp.SaveStringToTxt(ex.Message + "\r\n" + ex.StackTrace + "\r\n\r\n", "Error.txt");
+            }
+            finally
+            {
+                if (mainThread != null && mainThread.IsAlive)
+                {
+                    mainThread.Abort();
+                }
+            }
+        }
+
+
 
 
         /// <summary>
@@ -247,7 +287,7 @@ namespace PixivDown
         /// <returns></returns>
         private string GetListUrlByID(string id, string savePath)
         {
-            lock (Multithreading.LockObjeck)
+            lock (Multithreading.ObjLockExistFile)
             {
                 if (!Directory.Exists(savePath))
                 {
@@ -482,6 +522,114 @@ namespace PixivDown
             }
         }
 
+
+
+
+
+        /// <summary>
+        /// 获取相关作品ID集合
+        /// </summary>
+        /// <param name="html"></param>
+        /// <param name="regStr"></param>
+        /// <returns></returns>
+        public string[] GetRelatedWorks(string html, string regStr)
+        {
+            var regFirstIds = new Regex(regStr, RegexOptions.Singleline);
+            var mFirstIds = regFirstIds.Matches(html);
+            if (mFirstIds != null && mFirstIds.Count > 0)
+            {
+                var result = new string[mFirstIds.Count];
+                for (int i = 0; i < mFirstIds.Count; i++)
+                {
+                    result[i] = mFirstIds[i].Groups["ID"].Value;
+                }
+                return result;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 获取某个作品的相关作品
+        /// </summary>
+        /// <param name="parame"></param>
+        /// <returns></returns>
+        public List<string> GetRelatedWorksIds(RequestParameEntity parame)
+        {
+            var itemUrl = parame.ListUrl;
+            var id = parame.ID;
+            var result = new List<string>();
+
+            //获取相关作品请求参数
+            var limitUrl = $"https://www.pixiv.net/ajax/illust/{id}/recommend/init?limit=18";
+
+            var limitHtml = DownHelp.GetHtmlString(limitUrl, Encoding.UTF8, 5);
+            if (limitHtml == "")
+            {
+                AddErrorMsg(string.Format("获取URL：{0} 的html失败！\r\n", limitUrl));
+                return null;
+            }
+            AddSuccessMsg(string.Format("获取URL：{0} 的html成功！\r\n", limitUrl));
+
+            var firstIds = GetRelatedWorks(limitHtml, RegexHelp.Other.GetFirstIds);
+            result.AddRange(firstIds);
+
+            var regNext = new Regex(RegexHelp.Other.GetNextIdsParent, RegexOptions.Singleline);
+            var mNext = regNext.Match(limitHtml);
+            if (mNext != null && mNext.Groups["Main"].Value != "")
+            {
+                var secondIds = GetRelatedWorks(mNext.Groups["Main"].Value, RegexHelp.Other.GetNextIds);
+                result.AddRange(secondIds);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 下载相关作品
+        /// </summary>
+        /// <param name="objParame"></param>
+        public void GetRelatedWorks(object objParame)
+        {
+            try
+            {
+                var parame = (RequestParameEntity)objParame;
+                var ids = GetRelatedWorksIds(parame);
+                if (ids != null && ids.Count > 0)
+                {
+                    foreach (var id in ids)
+                    {
+                        var itemUrl = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + id;
+                        var ri = new RequestItemParameEntity() { ItemUrl = itemUrl, SavePath = parame.SavePath };
+
+                        if (isSingle)
+                        {
+                            GetWorksItem(ri);
+                        }
+                        else
+                        {
+                            while (!mut.DoDownAction(ri, GetWorksItem) && mut.IsContinue)
+                            {
+                                Thread.Sleep(1000);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AddErrorMsg(ex.Message + "\r\n");
+                HtmlHelp.SaveStringToTxt(ex.Message + "\r\n" + ex.StackTrace + "\r\n\r\n", "Error.txt");
+            }
+            finally
+            {
+                //if (mainThread != null && mainThread.IsAlive)
+                //{
+                //    mainThread.Abort();
+                //}
+            }
+        }
+
         #endregion 通用遍历列表
 
         #region 获取画师方法，只能由DoDownThread执行
@@ -619,7 +767,7 @@ namespace PixivDown
 
                     var imgUrl = HtmlHelp.NeedHost(mUrl, mmm.Groups["Url"].Value);
 
-                    lock (Multithreading.LockObjeck)
+                    lock (Multithreading.ObjLockExistFile)
                     {
                         if (File.Exists(savePath + "/" + Path.GetFileName(imgUrl)))
                         {
@@ -658,7 +806,7 @@ namespace PixivDown
                     var imgUrl = m.Groups["Url"].Value;
                     imgUrl = HtmlHelp.NeedHost(moreUrl, imgUrl);
 
-                    lock (Multithreading.LockObjeck)
+                    lock (Multithreading.ObjLockExistFile)
                     {
                         if (File.Exists(savePath + "/" + Path.GetFileName(imgUrl)))
                         {
@@ -706,7 +854,7 @@ namespace PixivDown
 
             var imgUrl = HtmlHelp.NeedHost(itemUrl, imgM.Groups["Url"].Value);
 
-            lock (Multithreading.LockObjeck)
+            lock (Multithreading.ObjLockExistFile)
             {
                 if (File.Exists(savePath + "/" + Path.GetFileName(imgUrl)))
                 {
@@ -732,6 +880,7 @@ namespace PixivDown
                 HtmlHelp.SaveStringToTxt(txt, "FaildMsg.txt");
             }
         }
+
 
 
         /// <summary>
@@ -791,7 +940,7 @@ namespace PixivDown
 
             //zip文件名
             var fileName = savePath + "/" + Path.GetFileName(fileUrl);
-            lock (Multithreading.LockObjeck)
+            lock (Multithreading.ObjLockExistFile)
             {
                 if (File.Exists(fileName))
                 {

@@ -54,18 +54,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DownHelp.cs" />
+    <Compile Include="NetWork\DownHelp.cs" />
     <Compile Include="Entity\DownFileParameter.cs" />
     <Compile Include="Entity\GetListParameter.cs" />
     <Compile Include="GifHelp.cs" />
-    <Compile Include="HtmlHelp.cs" />
+    <Compile Include="NetWork\HtmlHelp.cs" />
     <Compile Include="Entity\HtmlResultEntity.cs" />
     <Compile Include="JsonHelp.cs" />
-    <Compile Include="Multithreading.cs" />
+    <Compile Include="Thread\MultThreadPool.cs" />
+    <Compile Include="Thread\Multithreading.cs" />
     <Compile Include="Entity\RegexHelp.cs" />
     <Compile Include="Entity\RequestParameEntity.cs" />
     <Compile Include="Entity\ResultEntity.cs" />
-    <Compile Include="MultThreadPool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="XmlHelp.cs" />
     <Compile Include="ZipHelp.cs" />

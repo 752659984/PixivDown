@@ -33,7 +33,13 @@ namespace Command
 
         public bool IsContinue { get; set; }
 
-        public static object LockObjeck = new object();
+        public static object ObjLockExistFile = new object();
+
+        public static object ObjLockGetThread = new object();
+
+        public static object ObjLockDownThread = new object();
+
+        public static object ObjLockUnZip = new object();
 
         public Multithreading(int getThreadMaxCount, int downThreadMaxCount)
         {
@@ -52,68 +58,72 @@ namespace Command
 
         public bool DoGetAction(object obj, Action<object> action)
         {
-            lock (LockObjeck)
+            if (GetThreadList.Count < GetThreadMaxCount)
             {
-                if (GetThreadList.Count < GetThreadMaxCount)
+                lock (ObjLockGetThread)
                 {
-                    Thread t = new Thread(new ParameterizedThreadStart(action));
-                    GetThreadList.Add(t);
-                    t.IsBackground = true;
-                    t.Name = "GThread_" + Guid.NewGuid().ToString();
-                    t.Start(obj);
+                    if (GetThreadList.Count < GetThreadMaxCount)
+                    {
+                        var t = new Thread(new ParameterizedThreadStart(action));
+                        GetThreadList.Add(t);
+                        t.IsBackground = true;
+                        t.Name = "GThread_" + Guid.NewGuid().ToString();
+                        t.Start(obj);
 
-                    return true;
+                        return true;
+                    }
                 }
-
-                return false;
             }
-            
+
+            return false;
         }
 
         public bool DoDownAction(object obj, Action<object> action)
         {
-            lock (LockObjeck)
+            if (DownThreadList.Count < DownThreadMaxCount)
             {
-                if (DownThreadList.Count < DownThreadMaxCount)
+                lock (ObjLockDownThread)
                 {
-                    Thread t = new Thread(new ParameterizedThreadStart(action));
-                    DownThreadList.Add(t);
-                    t.IsBackground = true;
-                    t.Name = "DThread_" + Guid.NewGuid().ToString();
-                    t.Start(obj);
+                    if (DownThreadList.Count < DownThreadMaxCount)
+                    {
+                        Thread t = new Thread(new ParameterizedThreadStart(action));
+                        DownThreadList.Add(t);
+                        t.IsBackground = true;
+                        t.Name = "DThread_" + Guid.NewGuid().ToString();
+                        t.Start(obj);
 
-                    return true;
+                        return true;
+                    }
                 }
-
-                return false;
             }
-
+            return false;
         }
 
         public bool UnZipFile(object obj, Action<object> action)
         {
-            lock (LockObjeck)
+            if (!UnZiping)
             {
-                if (UnZiping)
+                lock (ObjLockUnZip)
                 {
-                    return false;
-                }
-                else
-                {
-                    UnZiping = true;
+                    if (!UnZiping)
+                    {
+                        UnZiping = true;
 
-                    UnZipThread = new Thread(new ParameterizedThreadStart(action));
-                    UnZipThread.IsBackground = true;
-                    UnZipThread.Start(obj);
+                        UnZipThread = new Thread(new ParameterizedThreadStart(action));
+                        UnZipThread.IsBackground = true;
+                        UnZipThread.Start(obj);
 
-                    return true;
+                        return true;
+                    }
                 }
             }
+
+            return false;
         }
 
         public void RemoveGThread()
         {
-            lock (LockObjeck)
+            lock (ObjLockGetThread)
             {
                 var gt = GetThreadList.Where(p => p.Name == Thread.CurrentThread.Name).FirstOrDefault();
                 if (gt != null)
@@ -125,7 +135,7 @@ namespace Command
 
         public void RemoveDThread()
         {
-            lock (LockObjeck)
+            lock (ObjLockDownThread)
             {
                 var gt = DownThreadList.Where(p => p.Name == Thread.CurrentThread.Name).FirstOrDefault();
                 if (gt != null)
@@ -137,7 +147,7 @@ namespace Command
 
         public void DisposeUnZipThread()
         {
-            lock (LockObjeck)
+            lock (ObjLockUnZip)
             {
                 UnZiping = false;
                 UnZipThread.Abort();

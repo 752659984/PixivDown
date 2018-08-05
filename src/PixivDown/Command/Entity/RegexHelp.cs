@@ -119,5 +119,22 @@ namespace Command.Entity
         /// 获取图片的类型，2是动图，0是多图或单图
         /// </summary>
         public string GetIllustType = "\"illustType\":(?'T'\\d+),";
+
+
+        //——————获取相关作品
+        /// <summary>
+        /// 获取相关作品真正需要下载的作品ID
+        /// </summary>
+        public string GetFirstIds = "{\"workId\":\"(?'ID'\\d+)\",";
+
+        /// <summary>
+        /// 获取相关作品参数的文本，后面
+        /// </summary>
+        public string GetNextIdsParent = "\"nextIds\":\\[(?'Main'[^\\{\\}\\[\\]]*?)\\],\"recommendMethods\"";
+
+        /// <summary>
+        /// 获取相关作品参数的集合，后面
+        /// </summary>
+        public string GetNextIds = "\"(?'ID'\\d+)\"";
     }
 }

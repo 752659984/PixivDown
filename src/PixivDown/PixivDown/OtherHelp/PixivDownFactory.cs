@@ -320,7 +320,7 @@ namespace PixivDown.PixivDownFactory
 
                     var imgUrl = HtmlHelp.NeedHost(mUrl, mmm.Groups["Url"].Value);
 
-                    lock (Multithreading.LockObjeck)
+                    lock (Multithreading.ObjLockExistFile)
                     {
                         if (File.Exists(savePath + "/" + Path.GetFileName(imgUrl)))
                         {
@@ -359,7 +359,7 @@ namespace PixivDown.PixivDownFactory
                     var imgUrl = m.Groups["Url"].Value;
                     imgUrl = HtmlHelp.NeedHost(moreUrl, imgUrl);
 
-                    lock (Multithreading.LockObjeck)
+                    lock (Multithreading.ObjLockExistFile)
                     {
                         if (File.Exists(savePath + "/" + Path.GetFileName(imgUrl)))
                         {
@@ -407,7 +407,7 @@ namespace PixivDown.PixivDownFactory
 
             var imgUrl = HtmlHelp.NeedHost(itemUrl, imgM.Groups["Url"].Value);
 
-            lock (Multithreading.LockObjeck)
+            lock (Multithreading.ObjLockExistFile)
             {
                 if (File.Exists(savePath + "/" + Path.GetFileName(imgUrl)))
                 {
@@ -492,7 +492,7 @@ namespace PixivDown.PixivDownFactory
 
             //zip文件名
             var fileName = savePath + "/" + Path.GetFileName(fileUrl);
-            lock (Multithreading.LockObjeck)
+            lock (Multithreading.ObjLockExistFile)
             {
                 if (File.Exists(fileName))
                 {
@@ -787,7 +787,7 @@ namespace PixivDown.PixivDownFactory
         /// <returns></returns>
         private string GetListUrlByID(string id, string savePath)
         {
-            lock (Multithreading.LockObjeck)
+            lock (Multithreading.ObjLockExistFile)
             {
                 if (!Directory.Exists(savePath))
                 {

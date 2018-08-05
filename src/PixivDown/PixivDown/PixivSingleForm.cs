@@ -101,6 +101,7 @@ namespace PixivDown
             radSingle.Checked = true;
 
             panDupRem.Enabled = false;
+            panRelated.Enabled = false;
             radDupLast.Enabled = false;
 
             radDupDir.Checked = true;
@@ -239,6 +240,14 @@ namespace PixivDown
                 pHelp.mainThread = new Thread(pHelp.GetSearch);
                 pHelp.mainThread.IsBackground = true;
                 pHelp.mainThread.Start(new RequestParameEntity() { SavePath = txtSavePath.Text, ListUrl = txtSearchUrl.Text });
+            }
+            else if (radSingleWorks.Checked)
+            {
+                var listUrl = "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + ddlListUrl.Text;
+                //pHelp.GetSingleWorks(new RequestParameEntity() { SavePath = txtSavePath.Text, ListUrl = listUrl, DownRelatedWorks = chkRelatedWorks.Checked });
+                pHelp.mainThread = new Thread(pHelp.GetSingleWorks);
+                pHelp.mainThread.IsBackground = true;
+                pHelp.mainThread.Start(new RequestParameEntity() { SavePath = txtSavePath.Text, ID = ddlListUrl.Text, ListUrl = listUrl, DownRelatedWorks = chkRelatedWorks.Checked });
             }
             else
             {
@@ -386,7 +395,7 @@ namespace PixivDown
         /// <param name="e"></param>
         private void RadDownType_CheckedChanged(object sender, EventArgs e)
         {
-            if (radSingle.Checked || radAuthorColl.Checked)
+            if (radSingle.Checked || radAuthorColl.Checked || radSingleWorks.Checked)
             {
                 ddlListUrl.Enabled = true;
             }
@@ -395,6 +404,7 @@ namespace PixivDown
                 ddlListUrl.Enabled = false;
             }
             panDupRem.Enabled = radAllFollow.Checked;
+            panRelated.Enabled = radSingleWorks.Checked;
             txtSearchUrl.Enabled = radDownSearch.Checked;
         }
 

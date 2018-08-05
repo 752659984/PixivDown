@@ -61,7 +61,11 @@
             this.label6 = new System.Windows.Forms.Label();
             this.lblTitle = new System.Windows.Forms.Label();
             this.radAuthorColl = new System.Windows.Forms.RadioButton();
+            this.panRelated = new System.Windows.Forms.Panel();
+            this.chkRelatedWorks = new System.Windows.Forms.CheckBox();
+            this.radSingleWorks = new System.Windows.Forms.RadioButton();
             this.panDupRem.SuspendLayout();
+            this.panRelated.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -331,7 +335,7 @@
             this.chkNeglect.AutoSize = true;
             this.chkNeglect.BackColor = System.Drawing.Color.Transparent;
             this.chkNeglect.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(156)))), ((int)(((byte)(255)))));
-            this.chkNeglect.Location = new System.Drawing.Point(55, 359);
+            this.chkNeglect.Location = new System.Drawing.Point(527, 358);
             this.chkNeglect.Name = "chkNeglect";
             this.chkNeglect.Size = new System.Drawing.Size(120, 16);
             this.chkNeglect.TabIndex = 106;
@@ -445,12 +449,49 @@
             this.radAuthorColl.UseVisualStyleBackColor = false;
             this.radAuthorColl.CheckedChanged += new System.EventHandler(this.RadDownType_CheckedChanged);
             // 
+            // panRelated
+            // 
+            this.panRelated.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panRelated.Controls.Add(this.chkRelatedWorks);
+            this.panRelated.Location = new System.Drawing.Point(198, 344);
+            this.panRelated.Name = "panRelated";
+            this.panRelated.Size = new System.Drawing.Size(118, 44);
+            this.panRelated.TabIndex = 118;
+            // 
+            // chkRelatedWorks
+            // 
+            this.chkRelatedWorks.AutoSize = true;
+            this.chkRelatedWorks.BackColor = System.Drawing.Color.Transparent;
+            this.chkRelatedWorks.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(156)))), ((int)(((byte)(255)))));
+            this.chkRelatedWorks.Location = new System.Drawing.Point(12, 13);
+            this.chkRelatedWorks.Name = "chkRelatedWorks";
+            this.chkRelatedWorks.Size = new System.Drawing.Size(96, 16);
+            this.chkRelatedWorks.TabIndex = 115;
+            this.chkRelatedWorks.Text = "下载相关作品";
+            this.chkRelatedWorks.UseVisualStyleBackColor = false;
+            // 
+            // radSingleWorks
+            // 
+            this.radSingleWorks.AutoSize = true;
+            this.radSingleWorks.BackColor = System.Drawing.Color.Transparent;
+            this.radSingleWorks.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(156)))), ((int)(((byte)(255)))));
+            this.radSingleWorks.Location = new System.Drawing.Point(55, 357);
+            this.radSingleWorks.Name = "radSingleWorks";
+            this.radSingleWorks.Size = new System.Drawing.Size(107, 16);
+            this.radSingleWorks.TabIndex = 117;
+            this.radSingleWorks.TabStop = true;
+            this.radSingleWorks.Text = "仅下载单个作品";
+            this.radSingleWorks.UseVisualStyleBackColor = false;
+            this.radSingleWorks.CheckedChanged += new System.EventHandler(this.RadDownType_CheckedChanged);
+            // 
             // PixivSingleForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(700, 700);
+            this.Controls.Add(this.panRelated);
+            this.Controls.Add(this.radSingleWorks);
             this.Controls.Add(this.radAuthorColl);
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.txtSearchUrl);
@@ -489,6 +530,8 @@
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PixivSingleForm_MouseDown);
             this.panDupRem.ResumeLayout(false);
             this.panDupRem.PerformLayout();
+            this.panRelated.ResumeLayout(false);
+            this.panRelated.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -529,6 +572,9 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.RadioButton radAuthorColl;
+        private System.Windows.Forms.Panel panRelated;
+        private System.Windows.Forms.CheckBox chkRelatedWorks;
+        private System.Windows.Forms.RadioButton radSingleWorks;
     }
 }
 
