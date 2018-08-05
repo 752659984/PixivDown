@@ -170,6 +170,15 @@ namespace PixivDown
                 MessageBox.Show("请输入画师ID！", "提示");
                 return false;
             }
+            if (radSingle.Checked || radAuthorColl.Checked)
+            {
+                var r = new Regex("^[0-9]+$", RegexOptions.Singleline);
+                if (!r.IsMatch(ddlListUrl.Text))
+                {
+                    MessageBox.Show("请输入纯数字ID！", "提示");
+                    return false;
+                }
+            }
             if (string.IsNullOrWhiteSpace(txtSavePath.Text))
             {
                 MessageBox.Show("请选择保存路径！", "提示");
@@ -195,20 +204,9 @@ namespace PixivDown
         /// <returns></returns>
         private bool DownHandler()
         {
-            var listUrl = ddlListUrl.Text;
-            var r = new Regex("^[0-9]+$", RegexOptions.Singleline);
-            if (r.IsMatch(listUrl))
-            {
-                listUrl = "https://www.pixiv.net/member_illust.php?id=" + listUrl;
-            }
-            else
-            {
-                MessageBox.Show("请输入纯数字ID！");
-                return false;
-            }
-
             if (radSingle.Checked)
             {
+                var listUrl = "https://www.pixiv.net/member_illust.php?id=" + ddlListUrl.Text;
                 //pHelp.GetSingle(new RequestParameEntity() { ListUrl = listUrl, SavePath = txtSavePath.Text });
                 pHelp.mainThread = new Thread(pHelp.GetSingle);
                 pHelp.mainThread.IsBackground = true;
@@ -240,7 +238,7 @@ namespace PixivDown
                 //pHelp.GetSearch(new RequestParameEntity() { SavePath = txtSavePath.Text, ListUrl = txtSearchUrl.Text });
                 pHelp.mainThread = new Thread(pHelp.GetSearch);
                 pHelp.mainThread.IsBackground = true;
-                pHelp.mut.DoGetAction(new RequestParameEntity() { SavePath = txtSavePath.Text, ListUrl = txtSearchUrl.Text }, pHelp.GetSearch);
+                pHelp.mainThread.Start(new RequestParameEntity() { SavePath = txtSavePath.Text, ListUrl = txtSearchUrl.Text });
             }
             else
             {

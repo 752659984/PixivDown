@@ -26,17 +26,26 @@ namespace PixivDown.PixivDownAbstract
         public int Sleep { get; set; }
 
         /// <summary>
-        /// 开始任务方法
+        /// 实例化
         /// </summary>
-        /// <param name="objParame"></param>
-        public virtual void Start(RequestParameEntity parame, int getCount, int downCount, int sleep) { }
+        protected PixivDownBase(IBaseForm b, bool IsSingle)
+        {
+            this.MyForm = b;
+            this.IsSumThread = false;
+            this.GetTypeStr = "";
+            this.Mut = null;
+            this.MainThread = null;
+            this.IsSingle = IsSingle;
+            this.count = 0;
+            this.Sleep = 0;
+        }
 
         /// <summary>
         /// 初始化
         /// </summary>
         /// <param name="b"></param>
         /// <param name="f"></param>
-        private void InitControl(IBaseForm b, Form f)
+        public static IBaseForm InitControl(IBaseForm b, Form f)
         {
             var type = typeof(IBaseForm);
             var ps = type.GetProperties();
@@ -49,24 +58,23 @@ namespace PixivDown.PixivDownAbstract
                     p.SetValue(b, cs[0]);
                 }
             }
+
+            return b;
         }
 
         /// <summary>
-        /// 实例化
+        /// 开始任务方法
         /// </summary>
-        protected PixivDownBase(IBaseForm b, Form f, bool IsSingle)
-        {
-            InitControl(b, f);
-            this.MyForm = b;
-            //this.form = new BaseForm();//这个不行
-            this.IsSumThread = false;
-            this.GetTypeStr = "";
-            this.Mut = null;
-            this.MainThread = null;
-            this.IsSingle = IsSingle;
-            this.count = 0;
-            this.Sleep = 0;
-        }
+        /// <param name="objParame"></param>
+        public abstract void Start(RequestParameEntity parame, int getCount, int downCount, int sleep);
+
+        /// <summary>
+        /// 开始任务方法
+        /// </summary>
+        /// <param name="objParame"></param>
+        public abstract void Start(RequestParameEntity parame);
+
+        #region 遍历方法
 
         /// <summary>
         /// 遍历列表页面，获取所有子项目，并自动获取下一页
@@ -174,6 +182,8 @@ namespace PixivDown.PixivDownAbstract
                 HtmlHelp.SaveStringToTxt(ex.Message + "\r\n" + ex.StackTrace + "\r\n\r\n", "Error.txt");
             }
         }
+
+        #endregion 遍历方法
 
         #region 获取画师方法，只能由DoDownThread执行
 
@@ -577,35 +587,38 @@ namespace PixivDown.PixivDownAbstract
         /// <summary>
         /// 加载页面的配置信息
         /// </summary>
-        public void LoadXmlConfig()
+        public static void LoadXmlConfig(IBaseForm from)
         {
             if (XmlHelp.doc == null)
                 XmlHelp.InitXmlDoucument();
 
             try
             {
-                MyForm.DdlListUrl.Items.Clear();
+                from.DdlListUrl.Items.Clear();
                 var users = XmlHelp.GetXmlNodesByPath("Config:PixivSingleForm:Painter");
                 foreach (XmlNode n in users)
                 {
-                    MyForm.DdlListUrl.Items.Add(n.SelectSingleNode("ID").InnerText);
+                    from.DdlListUrl.Items.Add(n.SelectSingleNode("ID").InnerText);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         /// <summary>
         /// 保存画师信息
         /// </summary>
-        public void SavePainterInfo()
+        public static void SavePainterInfo(IBaseForm from)
         {
-            if (MyForm.RadSingle.Checked)
+            if (from.RadSingle.Checked)
             {
                 XmlHelp.SetXmlNode("Config:PixivSingleForm:Painter"
                     , new Dictionary<string, string>()
                     {
-                    { "ID", MyForm.DdlListUrl.Text },
-                    { "SavePath", MyForm.TxtSavePath.Text }
+                    { "ID", from.DdlListUrl.Text },
+                    { "SavePath", from.TxtSavePath.Text }
                     }
                     , "ID");
             }
@@ -639,7 +652,7 @@ namespace PixivDown.PixivDownAbstract
 
     public abstract class CollectionBase : PixivDownBase
     {
-        public CollectionBase(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public CollectionBase(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         /// <summary>
@@ -678,7 +691,7 @@ namespace PixivDown.PixivDownAbstract
 
     public abstract class SingleBase : PixivDownBase
     {
-        public SingleBase(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public SingleBase(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         /// <summary>
@@ -743,7 +756,7 @@ namespace PixivDown.PixivDownAbstract
 
     public class Single: SingleBase
     {
-        public Single(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public Single(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         public override void Start(RequestParameEntity parame, int getCount, int downCount, int sleep)
@@ -752,11 +765,19 @@ namespace PixivDown.PixivDownAbstract
             base.Sleep = sleep;
             base.Mut.DoGetAction(parame, base.GetSingle);
         }
+
+        public override void Start(RequestParameEntity parame)
+        {
+            base.Mut = new MultThreadPool(1, 1);
+            base.MainThread = new Thread(base.GetSingle);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class AllFollow : SingleBase
     {
-        public AllFollow(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public AllFollow(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         /// <summary>
@@ -867,11 +888,19 @@ namespace PixivDown.PixivDownAbstract
             base.MainThread.IsBackground = true;
             base.MainThread.Start(parame);
         }
+
+        public override void Start(RequestParameEntity parame)
+        {
+            base.Mut = new MultThreadPool(1, 1);
+            base.MainThread = new Thread(this.GetAllFollow);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class Collection: CollectionBase
     {
-        public Collection(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public Collection(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         /// <summary>
@@ -907,11 +936,19 @@ namespace PixivDown.PixivDownAbstract
             base.MainThread.IsBackground = true;
             base.MainThread.Start(parame);
         }
+
+        public override void Start(RequestParameEntity parame)
+        {
+            base.Mut = new MultThreadPool(1, 1);
+            base.MainThread = new Thread(this.GetCollection);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class AuthorCollection: CollectionBase
     {
-        public AuthorCollection(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public AuthorCollection(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         /// <summary>
@@ -947,11 +984,19 @@ namespace PixivDown.PixivDownAbstract
             base.MainThread.IsBackground = true;
             base.MainThread.Start(parame);
         }
+
+        public override void Start(RequestParameEntity parame)
+        {
+            base.Mut = new MultThreadPool(1, 1);
+            base.MainThread = new Thread(this.GetAuthorCollection);
+            base.MainThread.IsBackground = true;
+            base.MainThread.Start(parame);
+        }
     }
 
     public class Search: PixivDownBase
     {
-        public Search(IBaseForm b, Form f, bool IsSingle) : base(b, f, IsSingle)
+        public Search(IBaseForm b, bool IsSingle) : base(b, IsSingle)
         { }
 
         /// <summary>
@@ -1009,55 +1054,64 @@ namespace PixivDown.PixivDownAbstract
             base.MainThread.IsBackground = true;
             base.MainThread.Start(parame);
         }
+
+        public override void Start(RequestParameEntity parame)
+        {
+            base.Mut = new MultThreadPool(1, 1);
+            base.MainThread = new Thread(this.GetSearch);
+            base.MainThread.IsBackground = true;
+            //base.Mut.DoGetAction(parame, this.GetSearch);
+            base.MainThread.Start(parame);
+        }
     }
 
 
 
     public interface IPixivDoWorkFactory
     {
-        PixivDownBase Create(IBaseForm b, Form f, bool IsSingle);
+        PixivDownBase Create(IBaseForm b, bool IsSingle);
     }
 
 
     public class SingleFactory : IPixivDoWorkFactory
     {
-        public PixivDownBase Create(IBaseForm b, Form f, bool IsSingle)
+        public PixivDownBase Create(IBaseForm b, bool IsSingle)
         {
-            return new Single(b, f, IsSingle);
+            return new Single(b, IsSingle);
         }
     }
 
     public class AllFollowFactory : IPixivDoWorkFactory
     {
-        public PixivDownBase Create(IBaseForm b, Form f, bool IsSingle)
+        public PixivDownBase Create(IBaseForm b, bool IsSingle)
         {
-            return new AllFollow(b, f, IsSingle);
+            return new AllFollow(b, IsSingle);
         }
     }
 
 
     public class CollectionFactory : IPixivDoWorkFactory
     {
-        public PixivDownBase Create(IBaseForm b, Form f, bool IsSingle)
+        public PixivDownBase Create(IBaseForm b, bool IsSingle)
         {
-            return new Collection(b, f, IsSingle);
+            return new Collection(b, IsSingle);
         }
     }
 
     public class AuthorCollectionFactory : IPixivDoWorkFactory
     {
-        public PixivDownBase Create(IBaseForm b, Form f, bool IsSingle)
+        public PixivDownBase Create(IBaseForm b, bool IsSingle)
         {
-            return new AuthorCollection(b, f, IsSingle);
+            return new AuthorCollection(b, IsSingle);
         }
     }
 
 
     public class SearchFactory : IPixivDoWorkFactory
     {
-        public PixivDownBase Create(IBaseForm b, Form f, bool IsSingle)
+        public PixivDownBase Create(IBaseForm b, bool IsSingle)
         {
-            return new Search(b, f, IsSingle);
+            return new Search(b, IsSingle);
         }
     }
 
