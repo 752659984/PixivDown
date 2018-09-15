@@ -3,6 +3,6 @@
 
 可以进行模拟登录、下载画师作品（包括动图）等功能。
 
-详细见个人网站：![a](Joysn.net)
+详细见个人网站：Joysn.net
 
 ![image](https://github.com/752659984/PixivDown/blob/master/pixiv.png)
